@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">My Application</string>
+    <string name="btnSalvar">Salvar</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="txt_home">Home</string>
+    <string name="txt_users">Users</string>
+    <string name="txt_products">Products</string>
+    <string name="users">Users</string>
+</resources>
