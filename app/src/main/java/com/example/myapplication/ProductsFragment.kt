@@ -5,8 +5,13 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.myapplication.databinding.ActivityMainBinding
 import com.example.myapplication.databinding.FragmentProductsBinding
+import kotlinx.coroutines.launch
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -17,6 +22,7 @@ class ProductsFragment : Fragment() {
 
     private var _binding : FragmentProductsBinding? = null
     private val binding get() = _binding!!
+    private val viewModel: ProductsViewModel by viewModels()
     private var param1: String? = null
     private var param2: String? = null
 
@@ -39,7 +45,42 @@ class ProductsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.tvProducts.text = "Área dos produtos"
+        observeUiState()
+        binding.btnRetry.setOnClickListener { viewModel.refresh() }
+    }
+
+    private fun showLoading() {
+        binding.progressBar.visibility = View.VISIBLE
+        binding.contentGroup.visibility = View.GONE
+        binding.errorGroup.visibility = View.GONE
+    }
+
+    private fun showContent(items: List<String>) {
+        binding.progressBar.visibility = View.GONE
+        binding.errorGroup.visibility = View.GONE
+        binding.contentGroup.visibility = View.VISIBLE
+        binding.tvList.text = items.joinToString(separator = "\n")
+    }
+
+    private fun showError(message: String) {
+        binding.progressBar.visibility = View.GONE
+        binding.contentGroup.visibility = View.GONE
+        binding.errorGroup.visibility = View.VISIBLE
+        binding.tvError.text = message
+    }
+
+    private fun observeUiState() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collect { state ->
+                    when (state) {
+                        is UiState.Loading -> showLoading()
+                        is UiState.Success -> showContent(state.data)
+                        is UiState.Error -> showError(state.message)
+                    }
+                }
+            }
+        }
     }
 
     override fun onDestroy() {
