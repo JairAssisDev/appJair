@@ -9,6 +9,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myapplication.databinding.ActivityMainBinding
 import com.example.myapplication.databinding.FragmentProductsBinding
 import kotlinx.coroutines.launch
@@ -25,6 +26,9 @@ class ProductsFragment : Fragment() {
     private val viewModel: ProductsViewModel by viewModels()
     private var param1: String? = null
     private var param2: String? = null
+    
+    private lateinit var taskAdapter: TaskAdapter
+    private var taskList = mutableListOf<Task>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,8 +49,55 @@ class ProductsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupRecyclerView()
+        setupClickListeners()
         observeUiState()
         binding.btnRetry.setOnClickListener { viewModel.refresh() }
+    }
+    
+    private fun setupRecyclerView() {
+        taskAdapter = TaskAdapter(
+            onTaskClicked = { task ->
+                updateTask(task)
+            },
+            onDeleteClicked = { task ->
+                deleteTask(task)
+            }
+        )
+        
+        binding.recyclerViewTasks.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = taskAdapter
+        }
+    }
+    
+    private fun setupClickListeners() {
+        binding.buttonAddTask.setOnClickListener {
+            addNewTask()
+        }
+    }
+    
+    private fun addNewTask() {
+        val title = binding.editTextNewTask.text.toString().trim()
+        if (title.isNotEmpty()) {
+            val newTask = Task(title = title)
+            taskList.add(newTask)
+            taskAdapter.submitList(taskList.toList())
+            binding.editTextNewTask.text.clear()
+        }
+    }
+    
+    private fun updateTask(updatedTask: Task) {
+        val index = taskList.indexOfFirst { it.id == updatedTask.id }
+        if (index != -1) {
+            taskList[index] = updatedTask
+            taskAdapter.submitList(taskList.toList())
+        }
+    }
+    
+    private fun deleteTask(taskToDelete: Task) {
+        taskList.removeAll { it.id == taskToDelete.id }
+        taskAdapter.submitList(taskList.toList())
     }
 
     private fun showLoading() {
@@ -59,7 +110,7 @@ class ProductsFragment : Fragment() {
         binding.progressBar.visibility = View.GONE
         binding.errorGroup.visibility = View.GONE
         binding.contentGroup.visibility = View.VISIBLE
-        binding.tvList.text = items.joinToString(separator = "\n")
+        // Não precisamos mais mostrar items aqui, pois agora usamos RecyclerView
     }
 
     private fun showError(message: String) {

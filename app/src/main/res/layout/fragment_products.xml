@@ -27,15 +27,41 @@
             android:id="@+id/tv_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Produtos"
+            android:text="Lista de Tarefas"
             android:textAppearance="@android:style/TextAppearance.Material.Large" />
 
-        <TextView
-            android:id="@+id/tv_list"
+        <!-- Input para adicionar nova tarefa -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="" />
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <EditText
+                android:id="@+id/edit_text_new_task"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Digite uma nova tarefa..."
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/button_add_task"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Adicionar" />
+
+        </LinearLayout>
+
+        <!-- RecyclerView para lista de tarefas -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view_tasks"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_marginTop="16dp" />
+
     </LinearLayout>
 
     <!-- Error state -->
